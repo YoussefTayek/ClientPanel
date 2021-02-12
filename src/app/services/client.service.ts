@@ -17,8 +17,8 @@ export class ClientService {
      
   }
 
-  getClients():Observable<Client[]>{
-    return this.clientsCollection.snapshotChanges().pipe(
+  getClients(userid: string):Observable<Client[]>{
+    return this.afs.collection('clients', ref => ref.where('user', '==', userid)).snapshotChanges().pipe(
       map(actions => actions.map(a => {
         const data = a.payload.doc.data() as Client;
         const id = a.payload.doc.id;
@@ -45,4 +45,6 @@ export class ClientService {
     this.clientDoc = this.clientsCollection.doc(id);
     this.clientDoc.delete();
   }
+
+
 }

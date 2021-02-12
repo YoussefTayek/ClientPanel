@@ -1,3 +1,4 @@
+import { AuthClientService } from './../../services/auth-client.service';
 import { FlashMessagesService } from 'flash-messages-angular';
 import { ClientService } from './../../services/client.service';
 import { Component, OnInit } from '@angular/core';
@@ -10,26 +11,31 @@ import Swal from 'sweetalert2';
   styleUrls: ['./clients.component.css']
 })
 export class ClientsComponent implements OnInit {
-
+  
+  searchClients: Client[];
   clients: Client[];
   total:number = 0;
 
-  constructor(private clientService: ClientService, private flashMessages: FlashMessagesService) { }
+  constructor(private clientService: ClientService, 
+              private flashMessages: FlashMessagesService,
+              private authService: AuthClientService) { }
 
   ngOnInit(): void {
-    this.clientService.getClients().subscribe(clients => {
-      this.clients = clients;
-      this.total   = this.getTotal();
-      console.log(this.clients);
-    });
+    this.authService.getAuth().subscribe(auth => {
+      this.clientService.getClients(auth.uid).subscribe(clients => {
+        this.searchClients = this.clients = clients;          
+        this.total   = this.getTotal();
+        console.log(this.clients);
+      })
+    })
   }
-
+    
   getTotal() {
    return this.clients.reduce((total, client) => {
      return  total + parseFloat(client.balance.toString());
    
     }, 0)
-    }
+  }
 
     deleteClient(id) {
       Swal.fire({
@@ -51,7 +57,11 @@ export class ClientsComponent implements OnInit {
         }
       })
     }
-    
+
+    search(query) {
+      
+     this.searchClients = (query) ? this.clients.filter(client => client.firstName.toLowerCase().includes(query.toLowerCase()) || client.lastName.toLowerCase().includes(query.toLowerCase()) || client.email.toLowerCase().includes(query.toLowerCase())) : this.clients;
+    }
   }
 
 

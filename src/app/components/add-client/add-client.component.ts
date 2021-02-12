@@ -1,3 +1,4 @@
+import { AuthClientService } from './../../services/auth-client.service';
 import { ClientService } from './../../services/client.service';
 import { Component, OnInit } from '@angular/core';
 import { Client } from 'src/app/Models/client';
@@ -17,11 +18,18 @@ export class AddClientComponent implements OnInit {
     lastName:"",
     email:"",
     phone:null,
-    balance: 0
+    balance: 0,
+    user: ''
   }
-  constructor(private clientService: ClientService, private route: Router, private flashMessages: FlashMessagesService) { }
+  constructor(private clientService: ClientService, 
+              private route: Router, 
+              private flashMessages: FlashMessagesService,
+              private authService: AuthClientService) { }
 
   ngOnInit(): void {
+    this.authService.getAuth().subscribe(userAuth => {
+      this.client.user = userAuth.uid;
+    })
   }
 
   onSubmit() {
